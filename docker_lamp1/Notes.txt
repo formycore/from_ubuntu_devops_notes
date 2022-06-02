@@ -1,0 +1,3 @@
+mkdir -p linuxconfig/DocumentRoot
+inside the linuxconfig
+create a file called docker-compose.yml

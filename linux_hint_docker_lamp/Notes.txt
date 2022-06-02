@@ -1,0 +1,61 @@
+first we need to install docker-compose
+  - sudo curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+    - sudo chmod +x /usr/local/bin/docker-compose
+    - docker-compose version
+
+- Setting Up Docker Compose for the Project:
+    - mkdir -p ~/docker/lamp/html
+    - cd ~/docker/lamp
+    - create a php.Dockerfile
+        - FROM php:7.4.3:apache
+          docker-php-ext-install mysqli pdo pdo_mysql
+    - Now create a docker-compose.yaml
+    - under ~/docker/lamp
+    ---------------------------
+version: "3.7"
+services:
+  web-server:
+    build:
+      dockerfile: php.Dockerfile
+      context: .
+    restart: always
+    volumes:
+      - "./html/:/var/www/html/"
+    ports:
+      - "8080:80"
+  mysql-server:
+    image: mysql:8.0.19
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:5.0.1
+    restart: always
+    environment:
+      PMA_HOST: mysql-server
+      PMA_USER: root
+      PMA_PASSWORD: secret
+    ports:
+      - "5000:80"
+volumes:
+  mysql-data:
+---------------------------------------
+Also, create a index.php file in the html/ directory for testing the LAMP server.
+index.php
+<?php
+$host = "mysql-server";
+$user = "root";
+$pass = "secret";
+$db = "app1";
+try {
+    $conn = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+    echo "Connected successfully";
+} catch(PDOException $e) {
+    echo "Connection failed: " . $e->getMessage();
+}
+?>

@@ -1,0 +1,31 @@
+version: '3.7'
+services:
+  php-httpd:
+    build: 
+      context: ./php-httpd
+    ports:
+      - 80:80
+    volumes:
+      - "./DocumentRoot:/var/www/html"
+  mariadb:
+    image: mariadb:10.5.2
+    volumes:
+      - mariadb-volume:/var/lib/mysql
+    environment:
+      TZ: "Europe/Rome"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      MYSQL_ROOT_PASSWORD: "rootpwd"
+      MYSQL_USER: 'testuser'
+      MYSQL_PASSWORD: 'testpassword'
+      MYSQL_DATABASE: 'testdb'
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - 'mariadb:db'
+      # here we are calling the db as running database container within the docker-compose
+      # as mariadb is the only running database here we calling that mariadb as db in the 
+      # phpmyadmin service
+    ports:
+      - 8081:80
+volumes:
+  mariadb-volume:
